@@ -132,7 +132,7 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
               + " - "
               + helpEntry.getDescription());
     }
-    if (paginator.pageCount() >= page + 1) {
+    if (paginator.pageCount() > page) {
       sender.sendMessage("Type /" + commandName + " help " + (page + 1) + " for more help");
     }
   }
