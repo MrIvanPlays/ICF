@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -57,15 +59,14 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
               args.next(int.class)
                   .ifPresent(
                       page -> {
-                        try {
-                          paginator.getPage(page);
-                        } catch (IndexOutOfBoundsException e) {
+                        if (paginator.pageCount() < page) {
                           sender.sendMessage(
                               ChatColor.RED
                                   + "I can't find help page "
                                   + page
                                   + ". I think the last page is page "
                                   + paginator.pageCount());
+                          return;
                         }
                         sendPage(sender, page);
                       })
@@ -82,6 +83,19 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
 
   @Override
   public Iterable<String> tabComplete(CommandSender sender, String label, CommandArguments args) {
+    Optional<String> firstArg = args.next();
+    if (firstArg.isPresent()) {
+      if (args.size() == 1) { // args.next removes the argument
+        List<String> matches = new ArrayList<>();
+        for (int i = 1; i < paginator.pageCount(); i++) {
+          matches.add(Integer.toString(i));
+        }
+        return matches
+            .parallelStream()
+            .filter(match -> match.toLowerCase().startsWith(args.nextUnsafe().toLowerCase()))
+            .collect(Collectors.toList());
+      }
+    }
     return null;
   }
 
@@ -99,10 +113,8 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
               + " - "
               + helpEntry.getDescription());
     }
-    try {
-      paginator.getPage(2);
-      sender.sendMessage("Type /" + commandName + " help 2 for more help");
-    } catch (IndexOutOfBoundsException ignored) {
+    if (paginator.pageCount() > 1) {
+      sender.sendMessage(ChatColor.BLUE + "Type /" + commandName + " help 2 for more help");
     }
   }
 
@@ -120,10 +132,8 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
               + " - "
               + helpEntry.getDescription());
     }
-    try {
-      paginator.getPage(page + 1);
+    if (paginator.pageCount() >= page + 1) {
       sender.sendMessage("Type /" + commandName + " help " + (page + 1) + " for more help");
-    } catch (IndexOutOfBoundsException ignored) {
     }
   }
 }
