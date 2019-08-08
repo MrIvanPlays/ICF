@@ -81,7 +81,11 @@ public final class ArgumentOptional<T> {
   public <U> ArgumentOptional<U> map(Function<T, U> mapper) {
     Preconditions.checkNotNull(mapper, "mapper");
     if (isPresent()) {
-      return ArgumentOptional.of(mapper.apply(value), failReason);
+      U newValue = mapper.apply(value);
+      if (newValue == null) {
+        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
+      }
+      return ArgumentOptional.of(newValue, failReason);
     } else {
       return ArgumentOptional.of(null, failReason);
     }
