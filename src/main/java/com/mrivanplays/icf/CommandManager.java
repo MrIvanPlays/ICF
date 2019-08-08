@@ -22,7 +22,12 @@ package com.mrivanplays.icf;
 
 import com.google.common.collect.ImmutableMap;
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
+import com.mrivanplays.icf.helpapi.external.AnnotationFinder;
+import com.mrivanplays.icf.helpapi.external.CommandHelp;
+import com.mrivanplays.icf.helpapi.external.HelpEntry;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
@@ -38,6 +43,9 @@ public final class CommandManager {
   private final Map<Class<?>, Function<String, ?>> argumentResolvers = new ConcurrentHashMap<>();
   private String noPermissionMessage;
   private String noConsoleMessage;
+  private boolean helpCommandEnabled;
+  private final Map<String, Entry<Optional<String>, Optional<String>>> commandHelp =
+      new ConcurrentHashMap<>();
 
   public CommandManager(Plugin plugin) {
     mapBridge = new BukkitCommandMapBridge(plugin, this);
@@ -67,6 +75,40 @@ public final class CommandManager {
         "&cYou don't have permission to perform this command"); // default no permission message
     setNoConsoleMessage(
         "&cThe command you've tried to run is player only."); // default no console message
+    helpCommandEnabled = false;
+  }
+
+  /**
+   * Enables the help command
+   *
+   * @param baseCommand the command base to get triggered. ex /myplugin [help] ...
+   * @param permission the permission required to invoke the command
+   * @param usageColor the color of the command name and usage
+   * @param descriptionColor the color of the description
+   * @throws IllegalArgumentException if a command does not have a syntax or description
+   */
+  public void enableHelp(
+      String baseCommand, String permission, ChatColor usageColor, ChatColor descriptionColor) {
+    helpCommandEnabled = true;
+    Map<String, HelpEntry> entries = new ConcurrentHashMap<>();
+    for (Entry<String, Entry<Optional<String>, Optional<String>>> entry : commandHelp.entrySet()) {
+      String commandName = entry.getKey();
+      Entry<Optional<String>, Optional<String>> helpEntryRaw = entry.getValue();
+      Optional<String> descriptionOptional = helpEntryRaw.getKey();
+      Optional<String> syntaxOptional = helpEntryRaw.getValue();
+      if (!syntaxOptional.isPresent()) {
+        throw new IllegalArgumentException("Command '" + commandName + "' does not have a syntax");
+      }
+      if (!descriptionOptional.isPresent()) {
+        throw new IllegalArgumentException(
+            "Command '" + commandName + "' does not have a description");
+      }
+      entries.put(
+          commandName,
+          new HelpEntry(
+              descriptionColor + descriptionOptional.get(), usageColor + syntaxOptional.get()));
+    }
+    registerCommand(new CommandHelp(baseCommand, permission, entries), baseCommand);
   }
 
   /**
@@ -74,8 +116,18 @@ public final class CommandManager {
    *
    * @param command the command you want to register
    * @param aliases the command names/aliases of which the command will get invoked
+   * @param <T> command implementation type
    */
-  public void registerCommand(ICFCommand command, String... aliases) {
+  public <T extends ICFCommand> void registerCommand(T command, String... aliases) {
+    if (helpCommandEnabled) {
+      if (!(command instanceof CommandHelp)) {
+        Optional<String> description = AnnotationFinder.findDescription(command);
+        Optional<String> syntax = AnnotationFinder.findSyntax(command);
+        if (!commandHelp.containsKey(aliases[0])) {
+          commandHelp.put(aliases[0], new ConcurrentHashMap.SimpleEntry<>(description, syntax));
+        }
+      }
+    }
     mapBridge.registerCommand(command, aliases);
   }
 
