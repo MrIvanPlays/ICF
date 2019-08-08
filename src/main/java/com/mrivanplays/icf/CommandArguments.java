@@ -78,6 +78,20 @@ public class CommandArguments {
     return ArgumentOptional.of(resolved);
   }
 
+  /**
+   * Gets a joined arguments into a message from the argument specified.
+   *
+   * @param from from which argument the joiner should start
+   * @return joined string by argument with space as delimiter
+   */
+  public String getArgumentsJoined(int from) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = from; i < args.size(); i++) {
+      builder.append(args.get(i)).append(" ");
+    }
+    return builder.substring(0, builder.length() - 1);
+  }
+
   public int size() {
     return args.size();
   }
