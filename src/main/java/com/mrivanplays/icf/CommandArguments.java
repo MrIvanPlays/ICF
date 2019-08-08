@@ -90,23 +90,30 @@ public final class CommandArguments {
    *     are no arguments or the resolved argument is null.
    */
   public <T> ArgumentOptional<T> next(Class<T> argumentClass) {
-    if (!argumentResolvers.containsKey(argumentClass) || args.size() == 0) {
-      return ArgumentOptional.of(null);
+    if (!argumentResolvers.containsKey(argumentClass)) {
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_RESOLVER_NOT_FOUND);
+    }
+    if (args.size() == 0) {
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_PARSED);
     }
     Function<String, ?> resolver = argumentResolvers.get(argumentClass);
     String arg = nextUnsafe();
     T resolved = (T) resolver.apply(arg);
     if (argumentClass.isAssignableFrom(int.class)) {
       if (resolved.equals(0)) {
-        return ArgumentOptional.of(null);
+        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
       }
     }
     if (argumentClass.isAssignableFrom(double.class)) {
       if (resolved.equals(0.0)) {
-        return ArgumentOptional.of(null);
+        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
       }
     }
-    return ArgumentOptional.of(resolved);
+    if (resolved == null) {
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
+    }
+
+    return ArgumentOptional.of(resolved, FailReason.NO_FAIL_REASON);
   }
 
   /**

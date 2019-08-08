@@ -20,40 +20,21 @@
 **/
 package com.mrivanplays.icf;
 
-import java.util.function.Consumer;
-
 /**
- * Represents a <i>rest</i> action, which comes role when the argument you want to get is null. This
- * provides a {@link #orElse(Consumer)} method, which should be used only when the argument you want
- * is not present.
+ * Represents a fail reason of why {@link RestArgumentAction#orElse(java.util.function.Consumer)}
+ * got invoked
  */
-public final class RestArgumentAction {
+public enum FailReason {
 
-  private final boolean valueNull;
-  private final FailReason failReason;
+  /** The argument wasn't typed in the command. */
+  ARGUMENT_NOT_PARSED,
 
-  public RestArgumentAction(boolean valueNull, FailReason failReason) {
-    this.valueNull = valueNull;
-    this.failReason = failReason;
-  }
+  /** The argument parsed is not the type we want it to be */
+  ARGUMENT_PARSED_NOT_THE_TYPE,
 
-  /**
-   * Returns whenever the value was present.
-   *
-   * @return <code>true</code> if present, <code>false</code> otherwise
-   */
-  public boolean wasValuePresent() {
-    return !valueNull;
-  }
+  /** The argument class which was parsed does not have a resolver. */
+  ARGUMENT_RESOLVER_NOT_FOUND,
 
-  /**
-   * The specified {@link Runnable} gets invoked when the value wasn't present.
-   *
-   * @param consumer the runnable to run when the value isn't present.
-   */
-  public void orElse(Consumer<FailReason> consumer) {
-    if (valueNull) {
-      consumer.accept(failReason);
-    }
-  }
+  /** Dummy reason for when there was no fail. This will never get invoked with a fail. */
+  NO_FAIL_REASON
 }

@@ -98,7 +98,7 @@ public class CommandTestPlaceholders extends ICFCommand {
   public void execute(CommandSender sender, String label, CommandArguments args) {
     args.next(String.class /* ARGUMENT CLASS HERE */)
       .ifPresent(sender::sendMessage)
-      .orElse(() -> sender.sendMessage("You need to have atleast 1 argument!"));
+      .orElse(failReason -> sender.sendMessage("You need to have atleast 1 argument!"));
   }
 }
 ```
@@ -116,7 +116,7 @@ public class CommandTestPlaceholders extends ICFCommand {
     Player player = (Player) sender;
     args.next(String.class /* ARGUMENT CLASS HERE */)
       .ifPresent(player::sendMessage)
-      .orElse(() -> player.sendMessage("You need to have atleast 1 argument!"));
+      .orElse(failReason -> player.sendMessage("You need to have atleast 1 argument!"));
   }
 }
 ```

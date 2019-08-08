@@ -35,17 +35,22 @@ public final class ArgumentOptional<T> {
    * Creates a new argument optional. If the value given is null, the optional will be empty.
    *
    * @param value the value of which you want argument optional
+   * @param failReason the fail reason of why this argument optional would fail
    * @param <T> argument type
    * @return argument optional if value not null, empty argument optional else
    */
-  public static <T> ArgumentOptional<T> of(T value) {
-    return value != null ? new ArgumentOptional<>(value) : new ArgumentOptional<>(null);
+  public static <T> ArgumentOptional<T> of(T value, FailReason failReason) {
+    return value != null
+        ? new ArgumentOptional<>(value, failReason)
+        : new ArgumentOptional<>(null, failReason);
   }
 
   private final T value;
+  private final FailReason failReason;
 
-  private ArgumentOptional(T value) {
+  private ArgumentOptional(T value, FailReason failReason) {
     this.value = value;
+    this.failReason = failReason;
   }
 
   /**
@@ -60,9 +65,9 @@ public final class ArgumentOptional<T> {
   public RestArgumentAction ifPresent(Consumer<T> action) {
     if (isPresent()) {
       action.accept(value);
-      return new RestArgumentAction(false);
+      return new RestArgumentAction(false, failReason);
     } else {
-      return new RestArgumentAction(true);
+      return new RestArgumentAction(true, failReason);
     }
   }
 
@@ -77,9 +82,9 @@ public final class ArgumentOptional<T> {
   public <U> ArgumentOptional<U> map(Function<T, U> mapper) {
     Preconditions.checkNotNull(mapper, "mapper");
     if (isPresent()) {
-      return ArgumentOptional.of(mapper.apply(value));
+      return ArgumentOptional.of(mapper.apply(value), failReason);
     } else {
-      return ArgumentOptional.of(null);
+      return ArgumentOptional.of(null, failReason);
     }
   }
 
