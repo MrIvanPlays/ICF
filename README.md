@@ -1,5 +1,11 @@
 # ICF
-Ivan's command framework.
+Ivan's command framework, providing custom argument handling. 
+Requires Java 8.
+
+# I'm using java 7
+Get off your dinosaur and get on this rocket ship!
+
+On a serious note, Java 7 is END OF LIFE and it is unsafe to use. Go download java 8.
 
 # Usage
 First you will need a command manager
@@ -64,6 +70,28 @@ public class CommandTestPlaceholders extends ICFCommand {
     Player player = (Player) sender;
     String message = args.getArgumentsJoined(0); // 0 is the starting argument
     player.sendMessage(message);
+  }
+}
+```
+
+We want to tab complete the command? No problem. You just have to extend the class with our TabCompleter
+```java
+public class CommandTestPlaceholders extends ICFCommand implements TabCompleter {
+
+  public CommandTestPlaceholders() {
+    super(true, "my.permission");
+  }
+
+  @Override
+  public void execute(CommandSender sender, String label, CommandArguments args) {
+    Player player = (Player) sender;
+    String message = args.getArgumentsJoined(0); // 0 is the starting argument
+    player.sendMessage(message);
+  }
+  
+  @Override
+  public Iterable<String> tabComplete(CommandSender sender, String label, CommandArguments args) {
+    return null; // hadle tab completion
   }
 }
 ```
