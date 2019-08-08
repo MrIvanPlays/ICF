@@ -21,6 +21,7 @@
 package com.mrivanplays.icf.helpapi.external;
 
 import com.mrivanplays.icf.CommandArguments;
+import com.mrivanplays.icf.FailReason;
 import com.mrivanplays.icf.ICFCommand;
 import com.mrivanplays.icf.TabCompleter;
 import java.util.ArrayList;
@@ -44,30 +45,85 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
   @Override
   public void execute(CommandSender sender, String label, CommandArguments args) {
     if (args.size() == 0) {
-      List<Entry<String, HelpEntry>> commands = paginator.getPage(1);
-      for (Entry<String, HelpEntry> entry : commands) {
-        HelpEntry helpEntry = entry.getValue();
-        sender.sendMessage(
-            ChatColor.BLUE
-                + "/"
-                + entry.getKey()
-                + " "
-                + ChatColor.RESET
-                + helpEntry.getUsage()
-                + " - "
-                + helpEntry.getDescription());
-      }
-      try {
-        paginator.getPage(2);
-        sender.sendMessage("Type /" + commandName + " help 2 for more help");
-      } catch (IndexOutOfBoundsException ignored) {
-      }
+      noArgRun(sender);
+      return;
     }
-    // todo: other stuff here
+    args.next(String.class)
+        .ifPresent(
+            subCommand -> {
+              if (!subCommand.equalsIgnoreCase("help")) {
+                return;
+              }
+              args.next(int.class)
+                  .ifPresent(
+                      page -> {
+                        try {
+                          paginator.getPage(page);
+                        } catch (IndexOutOfBoundsException e) {
+                          sender.sendMessage(
+                              ChatColor.RED
+                                  + "I can't find help page "
+                                  + page
+                                  + ". I think the last page is page "
+                                  + paginator.pageCount());
+                        }
+                        sendPage(sender, page);
+                      })
+                  .orElse(() -> noArgRun(sender));
+            })
+        .orElse(
+            failReason -> {
+              if (failReason == FailReason.ARGUMENT_PARSED_NOT_THE_TYPE) {
+                sender.sendMessage(
+                    ChatColor.RED + "You should parse a subcommand ex. /" + commandName + " help");
+              }
+            });
   }
 
   @Override
   public Iterable<String> tabComplete(CommandSender sender, String label, CommandArguments args) {
     return null;
+  }
+
+  private void noArgRun(CommandSender sender) {
+    List<Entry<String, HelpEntry>> commands = paginator.getPage(1);
+    for (Entry<String, HelpEntry> entry : commands) {
+      HelpEntry helpEntry = entry.getValue();
+      sender.sendMessage(
+          ChatColor.BLUE
+              + "/"
+              + entry.getKey()
+              + " "
+              + ChatColor.RESET
+              + helpEntry.getUsage()
+              + " - "
+              + helpEntry.getDescription());
+    }
+    try {
+      paginator.getPage(2);
+      sender.sendMessage("Type /" + commandName + " help 2 for more help");
+    } catch (IndexOutOfBoundsException ignored) {
+    }
+  }
+
+  private void sendPage(CommandSender sender, int page) {
+    List<Entry<String, HelpEntry>> commands = paginator.getPage(page);
+    for (Entry<String, HelpEntry> entry : commands) {
+      HelpEntry helpEntry = entry.getValue();
+      sender.sendMessage(
+          ChatColor.BLUE
+              + "/"
+              + entry.getKey()
+              + " "
+              + ChatColor.RESET
+              + helpEntry.getUsage()
+              + " - "
+              + helpEntry.getDescription());
+    }
+    try {
+      paginator.getPage(page + 1);
+      sender.sendMessage("Type /" + commandName + " help " + (page + 1) + " for more help");
+    } catch (IndexOutOfBoundsException ignored) {
+    }
   }
 }
