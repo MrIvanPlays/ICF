@@ -23,9 +23,9 @@ package com.mrivanplays.icf;
 import java.util.function.Consumer;
 
 /**
- * Represents a <i>rest</i> action, which comes role when the argument you want to get is null. This
- * provides a {@link #orElse(Consumer)} method, which should be used only when the argument you want
- * is not present.
+ * Represents a <i>rest</i> action, which comes role when the argument you wanted to get back in the
+ * code chain is null. This provides a {@link #orElse(Consumer)} method, which is being called only
+ * when there was no value present back.
  */
 public final class RestArgumentAction {
 
@@ -47,13 +47,24 @@ public final class RestArgumentAction {
   }
 
   /**
-   * The specified {@link Runnable} gets invoked when the value wasn't present.
+   * The specified {@link Consumer} gets invoked with the {@link FailReason} when the value wasn't
+   * present.
    *
-   * @param consumer the runnable to run when the value isn't present.
+   * @param consumer the consumer to run
    */
   public void orElse(Consumer<FailReason> consumer) {
     if (valueNull) {
       consumer.accept(failReason);
     }
+  }
+
+  /**
+   * The specified {@link Runnable} gets invoked whatever the {@link FailReason} was when the value
+   * wasn't present.
+   *
+   * @param runnable the runnable to run
+   */
+  public void orElse(Runnable runnable) {
+    orElse(failReason -> runnable.run());
   }
 }

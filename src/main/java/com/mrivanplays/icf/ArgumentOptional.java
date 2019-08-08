@@ -54,10 +54,9 @@ public final class ArgumentOptional<T> {
   }
 
   /**
-   * Returns a <i>rest</i> argument action, which contains data about if the argument was null or
-   * not. The method consumes the specified {@link Consumer} if a value is present, making the
-   * <i>rest</i> action do nothing when method's invoked. If a value is not present, the <i>rest</i>
-   * action comes to work.
+   * If value is being present, the executor will get executed and the return value will don't come
+   * in work, otherwise the return value, a <i>rest</i> argument action will execute its {@link
+   * RestArgumentAction#orElse(Consumer)} method if it was called.
    *
    * @param action executor of the argument
    * @return a <i>rest</i> argument action
@@ -72,7 +71,7 @@ public final class ArgumentOptional<T> {
   }
 
   /**
-   * Maps the specified argument to a new value.
+   * Leads the specified argument to a new argument.
    *
    * @param mapper mapper for converting the current argument to another
    * @param <U> new argument type
