@@ -1,4 +1,5 @@
-# ICF
+[ ![Download](https://api.bintray.com/packages/mrivanplaysbg/mrivanplays/ICF/images/download.svg) ](https://bintray.com/mrivanplaysbg/mrivanplays/ICF/_latestVersion)
+# ICF 
 Ivan's command framework, providing custom argument handling. 
 Requires Java 8.
 
@@ -6,6 +7,69 @@ Requires Java 8.
 Get off your dinosaur and get on this rocket ship!
 
 On a serious note, Java 7 is END OF LIFE and it is unsafe to use. Go download java 8.
+
+# Set me up
+I will show you how to make it with maven.
+
+Install the dependency and the repository:
+```html
+  <repositories>
+    <repository>
+      <id>spigotmc-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>mrivanplays</id>
+      <url>https://dl.bintray.com/mrivanplaysbg/mrivanplays/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.14.4-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mrivanplays</groupId>
+      <artifactId>icf</artifactId>
+      <version>VERSION</version> <!-- Replace with latest -->
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+```
+If it says to you that it can't find the version, don't believe it. It is working perfectly
+
+Then you should relocate the dependency
+```html
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <relocations>
+                <relocation>
+                  <pattern>com.mrivanplays.icf</pattern>
+                  <shadedPattern>[YOUR_PACKAGE].icf</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+```
 
 # Usage
 First you will need a command manager
