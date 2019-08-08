@@ -79,7 +79,10 @@ public final class CommandManager {
   }
 
   /**
-   * Enables the help command
+   * Enables the help command. It is generally preferable and suggested to make the base command a
+   * different (ex. mypluginhelp) as if you have another commands at /myplugin this could bug
+   * everything. This API is still not that stable and you may experience some errors. If you have
+   * any errors using this open a PR with fix or notify MrIvanPlays with the errors.
    *
    * @param baseCommand the command base to get triggered. ex /myplugin [help] ...
    * @param permission the permission required to invoke the command
