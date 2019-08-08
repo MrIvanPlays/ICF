@@ -23,6 +23,7 @@ package com.mrivanplays.icf;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class CommandArguments {
@@ -35,12 +36,34 @@ public class CommandArguments {
     this.args = Arrays.asList(args);
   }
 
+  public String nextUnsafe() {
+    if (args.size() == 0) {
+      return null;
+    }
+    return args.remove(0);
+  }
+
+  public Optional<String> next() {
+    return Optional.ofNullable(nextUnsafe());
+  }
+
+  public String getArgUnsafe(int arg) {
+    if (args.size() == 0) {
+      return null;
+    }
+    return args.remove(arg);
+  }
+
+  public Optional<String> getArg(int arg) {
+    return Optional.ofNullable(getArgUnsafe(arg));
+  }
+
   public <T> ArgumentOptional<T> next(Class<T> argumentClass) {
     if (argumentResolvers.containsKey(argumentClass) || args.size() == 0) {
       return ArgumentOptional.of(null);
     }
     Function<String, ?> resolver = argumentResolvers.get(argumentClass);
-    String arg = args.remove(0);
+    String arg = nextUnsafe();
     T resolved = (T) resolver.apply(arg);
     if (argumentClass.isAssignableFrom(int.class)) {
       if (((int) resolved) == 0) {

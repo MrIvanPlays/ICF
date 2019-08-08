@@ -22,6 +22,7 @@ package com.mrivanplays.icf;
 
 import com.google.common.base.Preconditions;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ArgumentOptional<T> {
 
@@ -41,6 +42,15 @@ public class ArgumentOptional<T> {
       return new RestArgumentAction(false);
     } else {
       return new RestArgumentAction(true);
+    }
+  }
+
+  public <U> ArgumentOptional<U> map(Function<T, U> mapper) {
+    Preconditions.checkNotNull(mapper, "mapper");
+    if (isPresent()) {
+      return ArgumentOptional.of(mapper.apply(value));
+    } else {
+      return ArgumentOptional.of(null);
     }
   }
 
