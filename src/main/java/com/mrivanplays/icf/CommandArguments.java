@@ -20,6 +20,7 @@
 **/
 package com.mrivanplays.icf;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public final class CommandArguments {
 
   public CommandArguments(CommandManager commandManager, String[] args) {
     argumentResolvers = commandManager.getArgumentResolvers();
-    this.args = Arrays.asList(args);
+    this.args = new ArrayList<>(Arrays.asList(args));
   }
 
   /**
