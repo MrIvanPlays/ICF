@@ -22,11 +22,13 @@ package com.mrivanplays.icf;
 
 import com.google.common.collect.ImmutableMap;
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
-import com.mrivanplays.icf.external.DefaultArgumentResolvers;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class CommandManager {
@@ -38,7 +40,27 @@ public class CommandManager {
 
   public CommandManager(Plugin plugin) {
     mapBridge = new BukkitCommandMapBridge(plugin, this);
-    new DefaultArgumentResolvers(this).registerAll();
+    registerArgumentResolver(String.class, input -> input);
+    registerArgumentResolver(
+        int.class,
+        input -> {
+          try {
+            return Integer.parseInt(input);
+          } catch (NumberFormatException e) {
+            return 0;
+          }
+        });
+    registerArgumentResolver(
+        double.class,
+        input -> {
+          try {
+            return Double.parseDouble(input);
+          } catch (NumberFormatException e) {
+            return 0.0;
+          }
+        });
+    registerArgumentResolver(Player.class, Bukkit::getPlayer);
+    registerArgumentResolver(OfflinePlayer.class, Bukkit::getOfflinePlayer);
     setNoPermissionMessage("&cYou don't have permission to perform this command");
     setNoConsoleMessage("&cThe command you've tried to run is player only.");
   }
