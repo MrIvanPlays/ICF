@@ -73,8 +73,9 @@ public final class BridgeCommand extends Command {
     if (!icfCommand.hasPermission(sender)) {
       return Collections.emptyList();
     }
-    return ImmutableList.copyOf(
+    Iterable<String> matches =
         ((TabCompleter) icfCommand)
-            .tabComplete(sender, label, new CommandArguments(commandManager, args)));
+            .tabComplete(sender, label, new CommandArguments(commandManager, args));
+    return matches == null ? Collections.emptyList() : ImmutableList.copyOf(matches);
   }
 }
