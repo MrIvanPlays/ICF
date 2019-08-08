@@ -22,7 +22,16 @@ package com.mrivanplays.icf;
 
 import org.bukkit.command.CommandSender;
 
+/** Represents a tab completer, made for our purposes. */
 public interface TabCompleter {
 
+  /**
+   * Needs to return a iterable of matches on the specified argument length. Can return null.
+   *
+   * @param sender the sender which invoked the completion
+   * @param label the label of which the completion was invoked
+   * @param args the arguments which were invoked by the sender
+   * @return matches on the specified argument length, can return null
+   */
   Iterable<String> tabComplete(CommandSender sender, String label, CommandArguments args);
 }

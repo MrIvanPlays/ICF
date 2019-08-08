@@ -31,7 +31,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class CommandManager {
+/** Represents a manager of commands and argument resolvers. */
+public final class CommandManager {
 
   private final BukkitCommandMapBridge mapBridge;
   private final Map<Class<?>, Function<String, ?>> argumentResolvers = new ConcurrentHashMap<>();
@@ -40,9 +41,9 @@ public class CommandManager {
 
   public CommandManager(Plugin plugin) {
     mapBridge = new BukkitCommandMapBridge(plugin, this);
-    registerArgumentResolver(String.class, input -> input);
+    registerArgumentResolver(String.class, input -> input); // default String argument
     registerArgumentResolver(
-        int.class,
+        int.class, // default integer argument
         input -> {
           try {
             return Integer.parseInt(input);
@@ -51,7 +52,7 @@ public class CommandManager {
           }
         });
     registerArgumentResolver(
-        double.class,
+        double.class, // default double argument
         input -> {
           try {
             return Double.parseDouble(input);
@@ -59,38 +60,87 @@ public class CommandManager {
             return 0.0;
           }
         });
-    registerArgumentResolver(Player.class, Bukkit::getPlayer);
-    registerArgumentResolver(OfflinePlayer.class, Bukkit::getOfflinePlayer);
-    setNoPermissionMessage("&cYou don't have permission to perform this command");
-    setNoConsoleMessage("&cThe command you've tried to run is player only.");
+    registerArgumentResolver(Player.class, Bukkit::getPlayer); // default player argument
+    registerArgumentResolver(
+        OfflinePlayer.class, Bukkit::getOfflinePlayer); // default offline player argument
+    setNoPermissionMessage(
+        "&cYou don't have permission to perform this command"); // default no permission message
+    setNoConsoleMessage(
+        "&cThe command you've tried to run is player only."); // default no console message
   }
 
+  /**
+   * Registers a new command.
+   *
+   * @param command the command you want to register
+   * @param aliases the command names/aliases of which the command will get invoked
+   */
   public void registerCommand(ICFCommand command, String... aliases) {
     mapBridge.registerCommand(command, aliases);
   }
 
+  /**
+   * Registers a new argument resolver.
+   *
+   * @param argumentClass the argument's class you want to register a resolver
+   * @param function a function which return value is the argument type and for a value to get
+   *     transferred is the current argument.
+   * @param <T> argument type
+   */
   public <T> void registerArgumentResolver(Class<T> argumentClass, Function<String, T> function) {
     if (!argumentResolvers.containsKey(argumentClass)) {
       argumentResolvers.put(argumentClass, function);
     }
   }
 
+  /**
+   * Returns a unmodifiable copy of all registered argument resolvers. This also includes the
+   * default registered argument resolvers in the constructor of this command manager.
+   *
+   * @return a map which is a unmodifiable copy of the original, containing all data about argument
+   *     resolvers
+   */
   public Map<Class<?>, Function<String, ?>> getArgumentResolvers() {
     return ImmutableMap.copyOf(argumentResolvers);
   }
 
+  /**
+   * Gets the no permission message, which is being used if the command sender does not have a
+   * permission to invoke certain command. You are able to modify the default one with {@link
+   * #setNoPermissionMessage(String)}
+   *
+   * @return no permission message
+   */
   public String getNoPermissionMessage() {
     return noPermissionMessage;
   }
 
+  /**
+   * Sets a new no permission message
+   *
+   * @param noPermissionMessage new message
+   * @see #getNoPermissionMessage()
+   */
   public void setNoPermissionMessage(String noPermissionMessage) {
     this.noPermissionMessage = colorize(noPermissionMessage);
   }
 
+  /**
+   * Gets the no console message, which is being used if the invoked command is being player only.
+   * You are able to modify the default one with {@link #setNoConsoleMessage(String)}
+   *
+   * @return no console message
+   */
   public String getNoConsoleMessage() {
     return noConsoleMessage;
   }
 
+  /**
+   * Sets a new no console message
+   *
+   * @param noConsoleMessage new message
+   * @see #getNoConsoleMessage()
+   */
   public void setNoConsoleMessage(String noConsoleMessage) {
     this.noConsoleMessage = colorize(noConsoleMessage);
   }

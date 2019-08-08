@@ -24,8 +24,20 @@ import com.google.common.base.Preconditions;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class ArgumentOptional<T> {
+/**
+ * Represents a optional which contains things for our purpose and that's arguments.
+ *
+ * @param <T> argument type
+ */
+public final class ArgumentOptional<T> {
 
+  /**
+   * Creates a new argument optional. If the value given is null, the optional will be empty.
+   *
+   * @param value the value of which you want argument optional
+   * @param <T> argument type
+   * @return argument optional if value not null, empty argument optional else
+   */
   public static <T> ArgumentOptional<T> of(T value) {
     return value != null ? new ArgumentOptional<>(value) : new ArgumentOptional<>(null);
   }
@@ -36,6 +48,15 @@ public class ArgumentOptional<T> {
     this.value = value;
   }
 
+  /**
+   * Returns a <i>rest</i> argument action, which contains data about if the argument was null or
+   * not. The method consumes the specified {@link Consumer} if a value is present, making the
+   * <i>rest</i> action do nothing when method's invoked. If a value is not present, the <i>rest</i>
+   * action comes to work.
+   *
+   * @param action executor of the argument
+   * @return a <i>rest</i> argument action
+   */
   public RestArgumentAction ifPresent(Consumer<T> action) {
     if (isPresent()) {
       action.accept(value);
@@ -45,6 +66,14 @@ public class ArgumentOptional<T> {
     }
   }
 
+  /**
+   * Maps the specified argument to a new value.
+   *
+   * @param mapper mapper for converting the current argument to another
+   * @param <U> new argument type
+   * @return argument optional with the new argument if present or a empty optional if the value was
+   *     not present.
+   */
   public <U> ArgumentOptional<U> map(Function<T, U> mapper) {
     Preconditions.checkNotNull(mapper, "mapper");
     if (isPresent()) {
@@ -54,10 +83,23 @@ public class ArgumentOptional<T> {
     }
   }
 
+  /**
+   * Returns whenever the value is present.
+   *
+   * @return <code>true</code> if value present, <code>false</code> otherwise
+   */
   public boolean isPresent() {
     return value != null;
   }
 
+  /**
+   * Gets the specified value if present. If the value is not present, the method will throw a
+   * {@link NullPointerException}. It is required to use instead {@link #ifPresent(Consumer)} to
+   * access the value, which also provides you handling when the value is not present.
+   *
+   * @return value if present
+   * @throws NullPointerException if value not present
+   */
   public T get() {
     Preconditions.checkNotNull(value, "Optional is empty");
     return value;

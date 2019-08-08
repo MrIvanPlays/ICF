@@ -27,7 +27,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.Plugin;
 
-public class BukkitCommandMapBridge {
+public final class BukkitCommandMapBridge {
 
   private CommandMap commandMap;
   private final Plugin plugin;

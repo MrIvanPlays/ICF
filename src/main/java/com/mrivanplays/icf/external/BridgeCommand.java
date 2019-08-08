@@ -32,7 +32,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class BridgeCommand extends Command {
+public final class BridgeCommand extends Command {
 
   private final ICFCommand icfCommand;
   private final CommandManager commandManager;
@@ -64,6 +64,11 @@ public class BridgeCommand extends Command {
   public List<String> tabComplete(CommandSender sender, String label, String[] args) {
     if (!(icfCommand instanceof TabCompleter)) {
       return super.tabComplete(sender, label, args);
+    }
+    if (icfCommand.isPlayerOnly()) {
+      if (!(sender instanceof Player)) {
+        return Collections.emptyList();
+      }
     }
     if (!icfCommand.hasPermission(sender)) {
       return Collections.emptyList();

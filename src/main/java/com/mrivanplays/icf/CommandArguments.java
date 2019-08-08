@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class CommandArguments {
+/** Represents a class, containing the actual argument resolving of a command. */
+public final class CommandArguments {
 
   private final Map<Class<?>, Function<String, ?>> argumentResolvers;
   private final List<String> args;
@@ -36,17 +37,32 @@ public class CommandArguments {
     this.args = Arrays.asList(args);
   }
 
+  /**
+   * Gets the next argument. This method is unsafe as the method may return null if there are no
+   * arguments and the safe alternatives of this method are {@link #next()} or {@link #next(Class)}
+   *
+   * @return a string argument or null
+   */
   public String nextUnsafe() {
-    if (args.size() == 0) {
-      return null;
-    }
-    return args.remove(0);
+    return getArgUnsafe(0);
   }
 
+  /**
+   * Gets the next argument.
+   *
+   * @return a optional with string argument if present, a empty optional if not present
+   */
   public Optional<String> next() {
     return Optional.ofNullable(nextUnsafe());
   }
 
+  /**
+   * Gets the specified argument. This method is unsafe as the method may return null if there are
+   * no arguments and the safe alternative of this method is {@link #getArg(int)}
+   *
+   * @param arg the argument you want to get
+   * @return the string argument or null
+   */
   public String getArgUnsafe(int arg) {
     if (args.size() == 0) {
       return null;
@@ -54,12 +70,26 @@ public class CommandArguments {
     return args.remove(arg);
   }
 
+  /**
+   * Gets the specified argument.
+   *
+   * @param arg the argument yiu want to get
+   * @return a optional with string argument if present, a empty optional if not present
+   */
   public Optional<String> getArg(int arg) {
     return Optional.ofNullable(getArgUnsafe(arg));
   }
 
+  /**
+   * Gets the next argument, resolving it to the specified class.
+   *
+   * @param argumentClass the argument's class you wish to resolve the argument to
+   * @param <T> new argument type
+   * @return empty {@link ArgumentOptional} if there's no argument resolver for this class, there
+   *     are no arguments or the resolved argument is null.
+   */
   public <T> ArgumentOptional<T> next(Class<T> argumentClass) {
-    if (argumentResolvers.containsKey(argumentClass) || args.size() == 0) {
+    if (!argumentResolvers.containsKey(argumentClass) || args.size() == 0) {
       return ArgumentOptional.of(null);
     }
     Function<String, ?> resolver = argumentResolvers.get(argumentClass);
@@ -92,6 +122,11 @@ public class CommandArguments {
     return builder.substring(0, builder.length() - 1);
   }
 
+  /**
+   * Returns the count of the specified arguments.
+   *
+   * @return specified arguments count
+   */
   public int size() {
     return args.size();
   }

@@ -22,6 +22,7 @@ package com.mrivanplays.icf;
 
 import org.bukkit.command.CommandSender;
 
+/** Represents a command, which is made for our purposes. */
 public abstract class ICFCommand {
 
   private boolean playerOnly;
@@ -40,25 +41,58 @@ public abstract class ICFCommand {
     this.permission = permission;
   }
 
+  /**
+   * Returns whenever this command is player only.
+   *
+   * @return <code>true</code> if player only, otherwise <code>false</code>
+   */
   public boolean isPlayerOnly() {
     return playerOnly;
   }
 
+  /**
+   * Sets if this command should be player only.
+   *
+   * @param playerOnly value
+   */
   public void setPlayerOnly(boolean playerOnly) {
     this.playerOnly = playerOnly;
   }
 
+  /**
+   * Gets the permission of this command.
+   *
+   * @return permission, may be null
+   */
   public String getPermission() {
     return permission;
   }
 
+  /**
+   * Sets a new permission for this command.
+   *
+   * @param permission permission
+   */
   public void setPermission(String permission) {
     this.permission = permission;
   }
 
+  /**
+   * Returns whenever the {@link CommandSender} has permission to execute this command.
+   *
+   * @param sender the sender you wish to check if has a permission
+   * @return <code>true</code> if has permission, otherwise <code>false</code>
+   */
   public boolean hasPermission(CommandSender sender) {
     return permission == null || permission.isEmpty() || sender.hasPermission(permission);
   }
 
+  /**
+   * Executes the command when it is being invoked.
+   *
+   * @param sender the sender which invoked this command
+   * @param label the label of which the command got invoked
+   * @param args the arguments with which the command got invoked
+   */
   public abstract void execute(CommandSender sender, String label, CommandArguments args);
 }
