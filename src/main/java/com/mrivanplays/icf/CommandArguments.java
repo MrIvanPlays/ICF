@@ -96,12 +96,12 @@ public final class CommandArguments {
     String arg = nextUnsafe();
     T resolved = (T) resolver.apply(arg);
     if (argumentClass.isAssignableFrom(int.class)) {
-      if (((int) resolved) == 0) {
+      if (argumentClass.cast(resolved).equals(0)) {
         return ArgumentOptional.of(null);
       }
     }
     if (argumentClass.isAssignableFrom(double.class)) {
-      if (((double) resolved) == 0.0) {
+      if (argumentClass.cast(resolved).equals(0.0)) {
         return ArgumentOptional.of(null);
       }
     }
