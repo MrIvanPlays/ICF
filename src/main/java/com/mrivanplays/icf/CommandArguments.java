@@ -131,7 +131,8 @@ public final class CommandArguments {
   }
 
   /**
-   * Returns the count of the specified arguments.
+   * Returns the count of the specified arguments. This count will decrement whenever a argument was
+   * got from any of the methods except {@link #getArgumentsJoined(int)}
    *
    * @return specified arguments count
    */
