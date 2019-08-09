@@ -44,6 +44,7 @@ public final class CommandManager {
   private String noPermissionMessage;
   private String noConsoleMessage;
   private boolean helpCommandEnabled;
+  private String helpBaseCommand;
   private final Map<String, Entry<Optional<String>, Optional<String>>> commandHelp =
       new ConcurrentHashMap<>();
 
@@ -93,6 +94,7 @@ public final class CommandManager {
   public void enableHelp(
       String baseCommand, String permission, ChatColor usageColor, ChatColor descriptionColor) {
     helpCommandEnabled = true;
+    helpBaseCommand = baseCommand;
     Map<String, HelpEntry> entries = new ConcurrentHashMap<>();
     for (Entry<String, Entry<Optional<String>, Optional<String>>> entry : commandHelp.entrySet()) {
       String commandName = entry.getKey();
@@ -111,7 +113,7 @@ public final class CommandManager {
           new HelpEntry(
               descriptionColor + descriptionOptional.get(), usageColor + syntaxOptional.get()));
     }
-    registerCommand(new CommandHelp(baseCommand, permission, entries), baseCommand);
+    registerCommand(new CommandHelp(baseCommand, permission, entries, false), baseCommand); // todo
   }
 
   /**
@@ -131,6 +133,7 @@ public final class CommandManager {
         }
       }
     }
+    // todo: handle help command stuff
     mapBridge.registerCommand(command, aliases);
   }
 

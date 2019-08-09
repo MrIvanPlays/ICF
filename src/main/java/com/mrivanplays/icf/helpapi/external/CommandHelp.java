@@ -37,11 +37,14 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
 
   private final HelpPaginator paginator;
   private final String commandName;
+  private final boolean append;
 
-  public CommandHelp(String commandName, String permission, Map<String, HelpEntry> commandHelp) {
+  public CommandHelp(
+      String commandName, String permission, Map<String, HelpEntry> commandHelp, boolean append) {
     super(false, permission);
     paginator = new HelpPaginator(new ArrayList<>(commandHelp.entrySet()));
     this.commandName = commandName;
+    this.append = append;
   }
 
   @Override
@@ -50,51 +53,78 @@ public final class CommandHelp extends ICFCommand implements TabCompleter {
       noArgRun(sender);
       return;
     }
-    args.next(String.class)
-        .ifPresent(
-            subCommand -> {
-              if (!subCommand.equalsIgnoreCase("help")) {
-                return;
-              }
-              args.next(int.class)
-                  .ifPresent(
-                      page -> {
-                        if (paginator.pageCount() < page) {
-                          sender.sendMessage(
-                              ChatColor.RED
-                                  + "I can't find help page "
-                                  + page
-                                  + ". I think the last page is page "
-                                  + paginator.pageCount());
-                          return;
-                        }
-                        sendPage(sender, page);
-                      })
-                  .orElse(() -> noArgRun(sender));
-            })
-        .orElse(
-            failReason -> {
-              if (failReason == FailReason.ARGUMENT_PARSED_NOT_THE_TYPE) {
-                sender.sendMessage(
-                    ChatColor.RED + "You should parse a subcommand ex. /" + commandName + " help");
-              }
-            });
+    if (append) {
+      args.next(int.class)
+          .ifPresent(
+              page -> {
+                if (paginator.pageCount() < page) {
+                  sender.sendMessage(
+                      ChatColor.RED
+                          + "I can't find help page "
+                          + page
+                          + ". I think the last page is page "
+                          + paginator.pageCount());
+                  return;
+                }
+                sendPage(sender, page);
+              })
+          .orElse(() -> noArgRun(sender));
+    } else {
+      args.next(String.class)
+          .ifPresent(
+              subCommand -> {
+                if (!subCommand.equalsIgnoreCase("help")) {
+                  return;
+                }
+                args.next(int.class)
+                    .ifPresent(
+                        page -> {
+                          if (paginator.pageCount() < page) {
+                            sender.sendMessage(
+                                ChatColor.RED
+                                    + "I can't find help page "
+                                    + page
+                                    + ". I think the last page is page "
+                                    + paginator.pageCount());
+                            return;
+                          }
+                          sendPage(sender, page);
+                        })
+                    .orElse(() -> noArgRun(sender));
+              })
+          .orElse(
+              failReason -> {
+                if (failReason == FailReason.ARGUMENT_PARSED_NOT_THE_TYPE) {
+                  sender.sendMessage(
+                      ChatColor.RED
+                          + "You should parse a subcommand ex. /"
+                          + commandName
+                          + " help");
+                }
+              });
+    }
   }
 
   @Override
   public Iterable<String> tabComplete(CommandSender sender, String label, CommandArguments args) {
-    Optional<String> firstArg = args.next();
-    if (firstArg.isPresent()) {
-      if (args.size() == 1) { // args.next removes the argument
-        List<String> matches = new ArrayList<>();
-        for (int i = 1; i < paginator.pageCount(); i++) {
-          matches.add(Integer.toString(i));
+    if (!append) {
+      Optional<String> firstArg = args.next();
+      if (firstArg.isPresent()) {
+        if (firstArg.get().equalsIgnoreCase("help")) {
+          if (args.size() == 1) { // args.next removes the argument
+            List<String> matches = new ArrayList<>();
+            for (int i = 1; i < paginator.pageCount(); i++) {
+              matches.add(Integer.toString(i));
+            }
+            return matches
+                .parallelStream()
+                .filter(match -> match.toLowerCase().startsWith(args.nextUnsafe().toLowerCase()))
+                .collect(Collectors.toList());
+          }
         }
-        return matches
-            .parallelStream()
-            .filter(match -> match.toLowerCase().startsWith(args.nextUnsafe().toLowerCase()))
-            .collect(Collectors.toList());
       }
+    } else {
+      // todo
     }
     return null;
   }
