@@ -34,8 +34,13 @@ public final class CommandArguments {
   private final List<String> args;
 
   public CommandArguments(CommandManager commandManager, String[] args) {
-    argumentResolvers = commandManager.getArgumentResolvers();
-    this.args = new ArrayList<>(Arrays.asList(args));
+    this(commandManager.getArgumentResolvers(), new ArrayList<>(Arrays.asList(args)));
+  }
+
+  private CommandArguments(
+      Map<Class<?>, Function<String, ?>> argumentResolvers, List<String> args) {
+    this.argumentResolvers = argumentResolvers;
+    this.args = args;
   }
 
   /**
@@ -138,5 +143,14 @@ public final class CommandArguments {
    */
   public int size() {
     return args.size();
+  }
+
+  /**
+   * Creates a new copy of this command arguments.
+   *
+   * @return instance copy
+   */
+  public CommandArguments copy() {
+    return new CommandArguments(argumentResolvers, args);
   }
 }

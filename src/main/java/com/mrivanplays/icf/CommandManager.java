@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
 import com.mrivanplays.icf.helpapi.external.AnnotationFinder;
 import com.mrivanplays.icf.helpapi.external.CommandHelp;
+import com.mrivanplays.icf.helpapi.external.CommandHelpJoiner;
 import com.mrivanplays.icf.helpapi.external.HelpEntry;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -113,7 +114,7 @@ public final class CommandManager {
           new HelpEntry(
               descriptionColor + descriptionOptional.get(), usageColor + syntaxOptional.get()));
     }
-    registerCommand(new CommandHelp(baseCommand, permission, entries, false), baseCommand); // todo
+    registerCommand(new CommandHelp(baseCommand, permission, entries));
   }
 
   /**
@@ -124,16 +125,23 @@ public final class CommandManager {
    * @param <T> command implementation type
    */
   public <T extends ICFCommand> void registerCommand(T command, String... aliases) {
+    String commandName = aliases[0];
     if (helpCommandEnabled) {
       if (!(command instanceof CommandHelp)) {
         Optional<String> description = AnnotationFinder.findDescription(command);
         Optional<String> syntax = AnnotationFinder.findSyntax(command);
-        if (!commandHelp.containsKey(aliases[0])) {
-          commandHelp.put(aliases[0], new ConcurrentHashMap.SimpleEntry<>(description, syntax));
+        if (!commandHelp.containsKey(commandName)) {
+          commandHelp.put(commandName, new ConcurrentHashMap.SimpleEntry<>(description, syntax));
+        }
+      } else {
+        CommandHelp help = (CommandHelp) command;
+        Map<String, HelpEntry> helpEntries = help.getHelpEntries();
+        if (helpEntries.containsKey(commandName)) {
+          mapBridge.registerCommand(
+              new CommandHelpJoiner(help, mapBridge.getCommand(commandName).get()));
         }
       }
     }
-    // todo: handle help command stuff
     mapBridge.registerCommand(command, aliases);
   }
 

@@ -23,9 +23,10 @@ package com.mrivanplays.icf.helpapi.external;
 import com.mrivanplays.icf.CommandArguments;
 import com.mrivanplays.icf.ICFCommand;
 import com.mrivanplays.icf.TabCompleter;
+import java.util.Collections;
 import org.bukkit.command.CommandSender;
 
-public class CommandHelpJoiner extends ICFCommand implements TabCompleter {
+public final class CommandHelpJoiner extends ICFCommand implements TabCompleter {
 
   private final CommandHelp helpCommand;
   private final ICFCommand otherCommand;
@@ -42,8 +43,7 @@ public class CommandHelpJoiner extends ICFCommand implements TabCompleter {
       helpCommand.execute(sender, label, args);
       return;
     }
-    String subcommand = args.nextUnsafe();
-    if (subcommand.equalsIgnoreCase("help")) {
+    if (helpCommand.matches(args.copy())) {
       helpCommand.execute(sender, label, args);
       return;
     }
@@ -57,11 +57,17 @@ public class CommandHelpJoiner extends ICFCommand implements TabCompleter {
       if (args.size() == 0) {
         return otherCommandCompleter.tabComplete(sender, label, args);
       }
-      String subArgument = args.nextUnsafe();
-      if (subArgument.equalsIgnoreCase("help")) {
+      if (helpCommand.matches(args.copy())) {
         return helpCommand.tabComplete(sender, label, args);
       }
       return otherCommandCompleter.tabComplete(sender, label, args);
+    } else {
+      if (args.size() == 0) {
+        return Collections.emptyList();
+      }
+      if (helpCommand.matches(args)) {
+        return helpCommand.tabComplete(sender, label, args);
+      }
     }
     return null;
   }

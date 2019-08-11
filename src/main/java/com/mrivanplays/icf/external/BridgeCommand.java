@@ -78,4 +78,8 @@ public final class BridgeCommand extends Command {
             .tabComplete(sender, label, new CommandArguments(commandManager, args));
     return matches == null ? Collections.emptyList() : ImmutableList.copyOf(matches);
   }
+
+  public ICFCommand asICFCommand() {
+    return icfCommand;
+  }
 }

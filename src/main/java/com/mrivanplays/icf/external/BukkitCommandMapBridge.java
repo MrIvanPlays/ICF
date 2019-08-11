@@ -23,7 +23,9 @@ package com.mrivanplays.icf.external;
 import com.mrivanplays.icf.CommandManager;
 import com.mrivanplays.icf.ICFCommand;
 import java.lang.reflect.Field;
+import java.util.Optional;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.Plugin;
 
@@ -48,5 +50,16 @@ public final class BukkitCommandMapBridge {
   public void registerCommand(ICFCommand command, String... aliases) {
     commandMap.register(
         aliases[0], plugin.getName(), new BridgeCommand(command, commandManager, aliases));
+  }
+
+  public Optional<ICFCommand> getCommand(String name) {
+    Command bukkit = commandMap.getCommand(name);
+    if (bukkit == null) {
+      return Optional.empty();
+    }
+    if (!(bukkit instanceof BridgeCommand)) {
+      return Optional.empty();
+    }
+    return Optional.of(((BridgeCommand) bukkit).asICFCommand());
   }
 }
