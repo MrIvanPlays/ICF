@@ -134,6 +134,7 @@ public final class CommandManager {
           commandHelp.put(commandName, new ConcurrentHashMap.SimpleEntry<>(description, syntax));
         }
       } else {
+        // todo: this shit won't probably work, we need it working
         CommandHelp help = (CommandHelp) command;
         Map<String, HelpEntry> helpEntries = help.getHelpEntries();
         if (helpEntries.containsKey(commandName)) {
