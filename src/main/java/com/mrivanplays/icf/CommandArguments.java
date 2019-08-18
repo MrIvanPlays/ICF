@@ -131,16 +131,15 @@ public final class CommandArguments {
   /**
    * Resolves the next argument to the specified resolver. The specified method decrements {@link
    * #size()} and if you run that method like that (ex.) <code>
-   *   @Override
    *   public void execute(CommandSender cs, String label, CommandArguments args) {
-   *     args.next(ArgumentResolvers.STRING).ifPresent(string -> {
+   *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason -> {
+   *     }).orElse(failReason (lambda) {
    *       // handling
    *     });
-   *     args.next(ArgumentResolvers.STRING).ifPresent(string -> {
+   *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason -> {
+   *     }).orElse(failReason (lambda) {
    *       // handling
    *     });
    *   }

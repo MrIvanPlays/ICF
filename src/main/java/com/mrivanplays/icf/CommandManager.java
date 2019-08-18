@@ -74,9 +74,8 @@ public final class CommandManager {
    *
    * @param command the command you want to register
    * @param aliases the command names/aliases of which the command will get invoked
-   * @param <T> command implementation type
    */
-  public <T extends ICFCommand> void registerCommand(T command, String... aliases) {
+  public void registerCommand(ICFCommand command, String... aliases) {
     mapBridge.registerCommand(command, aliases);
   }
 

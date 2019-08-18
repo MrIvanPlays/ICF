@@ -96,7 +96,7 @@ public class CommandTestPlaceholders extends ICFCommand {
 
   @Override
   public void execute(CommandSender sender, String label, CommandArguments args) {
-    args.next(String.class /* ARGUMENT CLASS HERE */)
+    args.next(ArgumentResolvers.STRING /* ARGUMENT RESOLVER HERE */)
       .ifPresent(sender::sendMessage)
       .orElse(failReason -> sender.sendMessage("You need to have atleast 1 argument!"));
   }
@@ -114,7 +114,7 @@ public class CommandTestPlaceholders extends ICFCommand {
   @Override
   public void execute(CommandSender sender, String label, CommandArguments args) {
     Player player = (Player) sender;
-    args.next(String.class /* ARGUMENT CLASS HERE */)
+    args.next(ArgumentResolvers.STRING /* ARGUMENT RESOLVER HERE */)
       .ifPresent(player::sendMessage)
       .orElse(failReason -> player.sendMessage("You need to have atleast 1 argument!"));
   }
@@ -132,7 +132,7 @@ public class CommandTestPlaceholders extends ICFCommand {
   @Override
   public void execute(CommandSender sender, String label, CommandArguments args) {
     Player player = (Player) sender;
-    String message = args.getArgumentsJoined(0); // 0 is the starting argument
+    String message = args.joinArgumentsSpace(0); // 0 is the starting argument
     player.sendMessage(message);
   }
 }
@@ -149,7 +149,7 @@ public class CommandTestPlaceholders extends ICFCommand implements TabCompleter 
   @Override
   public void execute(CommandSender sender, String label, CommandArguments args) {
     Player player = (Player) sender;
-    String message = args.getArgumentsJoined(0); // 0 is the starting argument
+    String message = args.joinArgumentsSpace(0); // 0 is the starting argument
     player.sendMessage(message);
   }
   
@@ -165,9 +165,13 @@ Registering the command is simple
 commandManager.registerCommand(new CommandTestPlaceholders(), "mycommandname1", "mycommandname2");
 ```
 
-Registering a argument resolver
+Making a argument resolver. If you have multiple ones, make sure to make a util class or something
+with them so they're easily accessable. Also keep in mind that this is a example.
 ```java
-commandManager.registerArgumentResolver(MyCustomClass.class, input -> {
-  return new MyCustomClass(input);
-})
+// creation
+public static Function<String, Weapon> WEAPON = Weapon::new;
+
+
+// usage
+args.next(WEAPON).ifPresent(...).orElse(...);
 ```
