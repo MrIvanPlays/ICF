@@ -44,8 +44,10 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets the next argument. This method is unsafe as the method may return null if there are no
-   * arguments and the safe alternatives of this method are {@link #next()} or {@link #next(Class)}
+   * Gets the next argument while decrementing the {@link #size()}. This method is unsafe as the
+   * method may return null if there are no arguments and the safe alternatives of this method are
+   * {@link #next()} or {@link #next(Class)}. Be careful when using the methods with <code>next
+   * </code> in their name!
    *
    * @return a string argument or null
    */
@@ -54,7 +56,8 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets the next argument.
+   * Gets the next argument while decrementing the {@link #size()}. Be careful when using the
+   * methods with <code>next</code> in their name!
    *
    * @return a optional with string argument if present, a empty optional if not present
    */
@@ -63,8 +66,9 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets the specified argument. This method is unsafe as the method may return null if there are
-   * no arguments and the safe alternative of this method is {@link #getArg(int)}
+   * Gets the specified argument while decrementing the {@link #size()}. This method is unsafe as
+   * the method may return null if there are no arguments and the safe alternative of this method is
+   * {@link #getArg(int)}. Be very careful how you use this.
    *
    * @param arg the argument you want to get
    * @return the string argument or null
@@ -77,7 +81,8 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets the specified argument.
+   * Gets the specified argument while decrementing the {@link #size()}. Be very careful how you use
+   * this.
    *
    * @param arg the argument yiu want to get
    * @return a optional with string argument if present, a empty optional if not present
@@ -93,7 +98,9 @@ public final class CommandArguments {
    * @param <T> new argument type
    * @return empty {@link ArgumentOptional} if there's no argument resolver for this class, there
    *     are no arguments or the resolved argument is null.
+   * @deprecated in favour of {@link #next(Function)}. This method soon will stop working.
    */
+  @Deprecated
   public <T> ArgumentOptional<T> next(Class<T> argumentClass) {
     if (!argumentResolvers.containsKey(argumentClass)) {
       return ArgumentOptional.of(null, FailReason.ARGUMENT_RESOLVER_NOT_FOUND);
@@ -122,22 +129,86 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets a joined arguments into a message from the argument specified.
+   * Resolves the next argument to the specified resolver. The specified method decrements {@link
+   * #size()} and if you run that method like that (ex.) <code>
+   *   @Override
+   *   public void execute(CommandSender cs, String label, CommandArguments args) {
+   *     args.next(ArgumentResolvers.STRING).ifPresent(string -> {
+   *       // handling
+   *     }).orElse(failReason -> {
+   *       // handling
+   *     });
+   *     args.next(ArgumentResolvers.STRING).ifPresent(string -> {
+   *       // handling
+   *     }).orElse(failReason -> {
+   *       // handling
+   *     });
+   *   }
+   * </code> The 2nd get will get the next argument after the 1st call so it won't be equal to the
+   * first one. That's why 2nd or more arguments should be in the call before to have access to all
+   * of the arguments you need. Be careful when using the methods with <code>next</code> in their
+   * name!
+   *
+   * @param resolver the resolver of the argument you want to resolve.
+   * @param <T> the type of the argument
+   * @return empty {@link ArgumentOptional} if argument not parsed, or the argument parsed is not
+   *     the type.
+   */
+  public <T> ArgumentOptional<T> next(Function<String, T> resolver) {
+    if (args.size() == 0) {
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_PARSED);
+    }
+    try {
+      T resolved = resolver.apply(nextUnsafe());
+      if (resolved == null) {
+        throw new IllegalArgumentException();
+      }
+      return ArgumentOptional.of(resolved, FailReason.NO_FAIL_REASON);
+    } catch (Throwable error) {
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
+    }
+  }
+
+  /**
+   * Gets a joined arguments into a message from the argument specified. This method, while
+   * officially not deprecated, soon will get removed as it has a new equivalent - {@link
+   * #joinArgumentsSpace(int)}
    *
    * @param from from which argument the joiner should start
    * @return joined string by argument with space as delimiter
    */
   public String getArgumentsJoined(int from) {
+    return joinArgumentsSpace(from);
+  }
+
+  /**
+   * Joins the specified arguments with space as a delimiter.
+   *
+   * @param from from which argument the joiner should start
+   * @return joined string from arguments with space as delimiter
+   */
+  public String joinArgumentsSpace(int from) {
+    return joinArguments(from, ' ');
+  }
+
+  /**
+   * Joins the specified arguments with the character specified.
+   *
+   * @param from from which argument the joiner should start
+   * @param separator the separator used to join the arguments
+   * @return joined string from arguments with the separator as delimiter
+   */
+  public String joinArguments(int from, char separator) {
     StringBuilder builder = new StringBuilder();
     for (int i = from; i < args.size(); i++) {
-      builder.append(args.get(i)).append(" ");
+      builder.append(args.get(i)).append(separator);
     }
     return builder.substring(0, builder.length() - 1);
   }
 
   /**
    * Returns the count of the specified arguments. This count will decrement whenever a argument was
-   * got from any of the methods except {@link #getArgumentsJoined(int)}
+   * got from any of the methods except {@link #joinArguments(int, char)}
    *
    * @return specified arguments count
    */

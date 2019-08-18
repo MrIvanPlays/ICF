@@ -22,13 +22,7 @@ package com.mrivanplays.icf;
 
 import com.google.common.collect.ImmutableMap;
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
-import com.mrivanplays.icf.helpapi.external.AnnotationFinder;
-import com.mrivanplays.icf.helpapi.external.CommandHelp;
-import com.mrivanplays.icf.helpapi.external.CommandHelpJoiner;
-import com.mrivanplays.icf.helpapi.external.HelpEntry;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
@@ -44,15 +38,11 @@ public final class CommandManager {
   private final Map<Class<?>, Function<String, ?>> argumentResolvers = new ConcurrentHashMap<>();
   private String noPermissionMessage;
   private String noConsoleMessage;
-  private boolean helpCommandEnabled;
-  private String helpBaseCommand;
-  private final Map<String, Entry<Optional<String>, Optional<String>>> commandHelp =
-      new ConcurrentHashMap<>();
 
   public CommandManager(Plugin plugin) {
     mapBridge = new BukkitCommandMapBridge(plugin, this);
-    registerArgumentResolver(String.class, input -> input); // default String argument
-    registerArgumentResolver(
+    argumentResolvers.put(String.class, input -> input); // default String argument
+    argumentResolvers.put(
         int.class, // default integer argument
         input -> {
           try {
@@ -61,7 +51,7 @@ public final class CommandManager {
             return 0;
           }
         });
-    registerArgumentResolver(
+    argumentResolvers.put(
         double.class, // default double argument
         input -> {
           try {
@@ -70,51 +60,13 @@ public final class CommandManager {
             return 0.0;
           }
         });
-    registerArgumentResolver(Player.class, Bukkit::getPlayer); // default player argument
-    registerArgumentResolver(
+    argumentResolvers.put(Player.class, Bukkit::getPlayer); // default player argument
+    argumentResolvers.put(
         OfflinePlayer.class, Bukkit::getOfflinePlayer); // default offline player argument
     setNoPermissionMessage(
         "&cYou don't have permission to perform this command"); // default no permission message
     setNoConsoleMessage(
         "&cThe command you've tried to run is player only."); // default no console message
-    helpCommandEnabled = false;
-  }
-
-  /**
-   * Enables the help command. It is generally preferable and suggested to make the base command a
-   * different (ex. mypluginhelp) as if you have another commands at /myplugin this could bug
-   * everything. This API is still not that stable and you may experience some errors. If you have
-   * any errors using this open a PR with fix or notify MrIvanPlays with the errors.
-   *
-   * @param baseCommand the command base to get triggered. ex /myplugin [help] ...
-   * @param permission the permission required to invoke the command
-   * @param usageColor the color of the command name and usage
-   * @param descriptionColor the color of the description
-   * @throws IllegalArgumentException if a command does not have a syntax or description
-   */
-  public void enableHelp(
-      String baseCommand, String permission, ChatColor usageColor, ChatColor descriptionColor) {
-    helpCommandEnabled = true;
-    helpBaseCommand = baseCommand;
-    Map<String, HelpEntry> entries = new ConcurrentHashMap<>();
-    for (Entry<String, Entry<Optional<String>, Optional<String>>> entry : commandHelp.entrySet()) {
-      String commandName = entry.getKey();
-      Entry<Optional<String>, Optional<String>> helpEntryRaw = entry.getValue();
-      Optional<String> descriptionOptional = helpEntryRaw.getKey();
-      Optional<String> syntaxOptional = helpEntryRaw.getValue();
-      if (!syntaxOptional.isPresent()) {
-        throw new IllegalArgumentException("Command '" + commandName + "' does not have a syntax");
-      }
-      if (!descriptionOptional.isPresent()) {
-        throw new IllegalArgumentException(
-            "Command '" + commandName + "' does not have a description");
-      }
-      entries.put(
-          commandName,
-          new HelpEntry(
-              descriptionColor + descriptionOptional.get(), usageColor + syntaxOptional.get()));
-    }
-    registerCommand(new CommandHelp(baseCommand, permission, entries));
   }
 
   /**
@@ -125,24 +77,6 @@ public final class CommandManager {
    * @param <T> command implementation type
    */
   public <T extends ICFCommand> void registerCommand(T command, String... aliases) {
-    String commandName = aliases[0];
-    if (helpCommandEnabled) {
-      if (!(command instanceof CommandHelp)) {
-        Optional<String> description = AnnotationFinder.findDescription(command);
-        Optional<String> syntax = AnnotationFinder.findSyntax(command);
-        if (!commandHelp.containsKey(commandName)) {
-          commandHelp.put(commandName, new ConcurrentHashMap.SimpleEntry<>(description, syntax));
-        }
-      } else {
-        // todo: this shit won't probably work, we need it working
-        CommandHelp help = (CommandHelp) command;
-        Map<String, HelpEntry> helpEntries = help.getHelpEntries();
-        if (helpEntries.containsKey(commandName)) {
-          mapBridge.registerCommand(
-              new CommandHelpJoiner(help, mapBridge.getCommand(commandName).get()));
-        }
-      }
-    }
     mapBridge.registerCommand(command, aliases);
   }
 
@@ -153,7 +87,9 @@ public final class CommandManager {
    * @param function a function which return value is the argument type and for a value to get
    *     transferred is the current argument.
    * @param <T> argument type
+   * @deprecated in favour of {@link CommandArguments#next(Function)}
    */
+  @Deprecated
   public <T> void registerArgumentResolver(Class<T> argumentClass, Function<String, T> function) {
     if (!argumentResolvers.containsKey(argumentClass)) {
       argumentResolvers.put(argumentClass, function);
@@ -166,7 +102,9 @@ public final class CommandManager {
    *
    * @return a map which is a unmodifiable copy of the original, containing all data about argument
    *     resolvers
+   * @deprecated in favour of {@link CommandArguments#next(Function)}
    */
+  @Deprecated
   public Map<Class<?>, Function<String, ?>> getArgumentResolvers() {
     return ImmutableMap.copyOf(argumentResolvers);
   }

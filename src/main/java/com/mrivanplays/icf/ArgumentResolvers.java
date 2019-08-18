@@ -18,27 +18,20 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **/
-package com.mrivanplays.icf.helpapi;
+package com.mrivanplays.icf;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.function.Function;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
-/**
- * Represents a annotation which should be placed on a class extending {@link
- * com.mrivanplays.icf.ICFCommand} and should contain a description.
- */
-@Documented
-@Retention(RetentionPolicy.CLASS)
-@Target(ElementType.TYPE)
-public @interface CommandDescription {
+/** A utility class containing the default argument resolvers. */
+public class ArgumentResolvers {
 
-  /**
-   * Description of the command
-   *
-   * @return description
-   */
-  String value();
+  public static Function<String, Integer> INTEGER = Integer::parseInt;
+  public static Function<String, String> STRING = input -> input;
+  public static Function<String, Double> DOUBLE = Double::parseDouble;
+  public static Function<String, Player> PLAYER = Bukkit::getPlayer;
+  public static Function<String, Player> PLAYER_EXACT = Bukkit::getPlayerExact;
+  public static Function<String, OfflinePlayer> PLAYER_OFFLINE = Bukkit::getOfflinePlayer;
 }
