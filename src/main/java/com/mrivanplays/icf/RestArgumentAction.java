@@ -29,11 +29,9 @@ import java.util.function.Consumer;
  */
 public final class RestArgumentAction {
 
-  private final boolean valueNull;
   private final FailReason failReason;
 
-  public RestArgumentAction(boolean valueNull, FailReason failReason) {
-    this.valueNull = valueNull;
+  public RestArgumentAction(FailReason failReason) {
     this.failReason = failReason;
   }
 
@@ -43,7 +41,7 @@ public final class RestArgumentAction {
    * @return <code>true</code> if present, <code>false</code> otherwise
    */
   public boolean wasValuePresent() {
-    return !valueNull;
+    return failReason == FailReason.NO_FAIL_REASON;
   }
 
   /**
@@ -53,7 +51,7 @@ public final class RestArgumentAction {
    * @param consumer the consumer to run
    */
   public void orElse(Consumer<FailReason> consumer) {
-    if (valueNull) {
+    if (failReason != FailReason.NO_FAIL_REASON) {
       consumer.accept(failReason);
     }
   }

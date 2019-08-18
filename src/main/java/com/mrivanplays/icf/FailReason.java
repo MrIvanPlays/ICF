@@ -27,13 +27,13 @@ package com.mrivanplays.icf;
 public enum FailReason {
 
   /** The argument wasn't typed in the command. */
-  ARGUMENT_NOT_PARSED,
+  ARGUMENT_NOT_TYPED,
 
   /** The argument parsed is not the type we want it to be */
-  ARGUMENT_PARSED_NOT_THE_TYPE,
+  ARGUMENT_PARSED_NOT_TYPE,
 
-  /** The argument class which was parsed does not have a resolver. */
-  ARGUMENT_RESOLVER_NOT_FOUND,
+  /** The argument parsed was null */
+  ARGUMENT_PARSED_NULL,
 
   /** Dummy reason for when there was no fail. This will never get invoked with a fail. */
   NO_FAIL_REASON

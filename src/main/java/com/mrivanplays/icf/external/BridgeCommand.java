@@ -56,7 +56,7 @@ public final class BridgeCommand extends Command {
       sender.sendMessage(commandManager.getNoPermissionMessage());
       return true;
     }
-    icfCommand.execute(sender, commandLabel, new CommandArguments(commandManager, args));
+    icfCommand.execute(sender, commandLabel, new CommandArguments(args));
     return true;
   }
 
@@ -74,8 +74,7 @@ public final class BridgeCommand extends Command {
       return Collections.emptyList();
     }
     Iterable<String> matches =
-        ((TabCompleter) icfCommand)
-            .tabComplete(sender, label, new CommandArguments(commandManager, args));
+        ((TabCompleter) icfCommand).tabComplete(sender, label, new CommandArguments(args));
     return matches == null ? Collections.emptyList() : ImmutableList.copyOf(matches);
   }
 

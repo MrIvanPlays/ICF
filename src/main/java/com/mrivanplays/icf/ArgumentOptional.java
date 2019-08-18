@@ -64,10 +64,8 @@ public final class ArgumentOptional<T> {
   public RestArgumentAction ifPresent(Consumer<T> action) {
     if (isPresent()) {
       action.accept(value);
-      return new RestArgumentAction(false, failReason);
-    } else {
-      return new RestArgumentAction(true, failReason);
     }
+    return new RestArgumentAction(failReason);
   }
 
   /**
@@ -83,7 +81,7 @@ public final class ArgumentOptional<T> {
     if (isPresent()) {
       U newValue = mapper.apply(value);
       if (newValue == null) {
-        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
+        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NULL);
       }
       return ArgumentOptional.of(newValue, failReason);
     } else {

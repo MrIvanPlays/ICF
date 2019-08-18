@@ -20,49 +20,19 @@
 **/
 package com.mrivanplays.icf;
 
-import com.google.common.collect.ImmutableMap;
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 /** Represents a manager of commands and argument resolvers. */
 public final class CommandManager {
 
   private final BukkitCommandMapBridge mapBridge;
-  private final Map<Class<?>, Function<String, ?>> argumentResolvers = new ConcurrentHashMap<>();
   private String noPermissionMessage;
   private String noConsoleMessage;
 
   public CommandManager(Plugin plugin) {
     mapBridge = new BukkitCommandMapBridge(plugin, this);
-    argumentResolvers.put(String.class, input -> input); // default String argument
-    argumentResolvers.put(
-        int.class, // default integer argument
-        input -> {
-          try {
-            return Integer.parseInt(input);
-          } catch (NumberFormatException e) {
-            return 0;
-          }
-        });
-    argumentResolvers.put(
-        double.class, // default double argument
-        input -> {
-          try {
-            return Double.parseDouble(input);
-          } catch (NumberFormatException e) {
-            return 0.0;
-          }
-        });
-    argumentResolvers.put(Player.class, Bukkit::getPlayer); // default player argument
-    argumentResolvers.put(
-        OfflinePlayer.class, Bukkit::getOfflinePlayer); // default offline player argument
     setNoPermissionMessage(
         "&cYou don't have permission to perform this command"); // default no permission message
     setNoConsoleMessage(
@@ -77,35 +47,6 @@ public final class CommandManager {
    */
   public void registerCommand(ICFCommand command, String... aliases) {
     mapBridge.registerCommand(command, aliases);
-  }
-
-  /**
-   * Registers a new argument resolver.
-   *
-   * @param argumentClass the argument's class you want to register a resolver
-   * @param function a function which return value is the argument type and for a value to get
-   *     transferred is the current argument.
-   * @param <T> argument type
-   * @deprecated in favour of {@link CommandArguments#next(Function)}
-   */
-  @Deprecated
-  public <T> void registerArgumentResolver(Class<T> argumentClass, Function<String, T> function) {
-    if (!argumentResolvers.containsKey(argumentClass)) {
-      argumentResolvers.put(argumentClass, function);
-    }
-  }
-
-  /**
-   * Returns a unmodifiable copy of all registered argument resolvers. This also includes the
-   * default registered argument resolvers in the constructor of this command manager.
-   *
-   * @return a map which is a unmodifiable copy of the original, containing all data about argument
-   *     resolvers
-   * @deprecated in favour of {@link CommandArguments#next(Function)}
-   */
-  @Deprecated
-  public Map<Class<?>, Function<String, ?>> getArgumentResolvers() {
-    return ImmutableMap.copyOf(argumentResolvers);
   }
 
   /**

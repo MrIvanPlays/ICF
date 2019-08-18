@@ -23,30 +23,26 @@ package com.mrivanplays.icf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 /** Represents a class, containing the actual argument resolving of a command. */
 public final class CommandArguments {
 
-  private final Map<Class<?>, Function<String, ?>> argumentResolvers;
   private final List<String> args;
 
-  public CommandArguments(CommandManager commandManager, String[] args) {
-    this(commandManager.getArgumentResolvers(), new ArrayList<>(Arrays.asList(args)));
+  public CommandArguments(String[] args) {
+    this(new ArrayList<>(Arrays.asList(args)));
   }
 
-  private CommandArguments(
-      Map<Class<?>, Function<String, ?>> argumentResolvers, List<String> args) {
-    this.argumentResolvers = argumentResolvers;
+  private CommandArguments(List<String> args) {
     this.args = args;
   }
 
   /**
    * Gets the next argument while decrementing the {@link #size()}. This method is unsafe as the
    * method may return null if there are no arguments and the safe alternatives of this method are
-   * {@link #next()} or {@link #next(Class)}. Be careful when using the methods with <code>next
+   * {@link #next()} or {@link #next(Function)}. Be careful when using the methods with <code>next
    * </code> in their name!
    *
    * @return a string argument or null
@@ -92,61 +88,31 @@ public final class CommandArguments {
   }
 
   /**
-   * Gets the next argument, resolving it to the specified class.
-   *
-   * @param argumentClass the argument's class you wish to resolve the argument to
-   * @param <T> new argument type
-   * @return empty {@link ArgumentOptional} if there's no argument resolver for this class, there
-   *     are no arguments or the resolved argument is null.
-   * @deprecated in favour of {@link #next(Function)}. This method soon will stop working.
-   */
-  @Deprecated
-  public <T> ArgumentOptional<T> next(Class<T> argumentClass) {
-    if (!argumentResolvers.containsKey(argumentClass)) {
-      return ArgumentOptional.of(null, FailReason.ARGUMENT_RESOLVER_NOT_FOUND);
-    }
-    if (args.size() == 0) {
-      return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_PARSED);
-    }
-    Function<String, ?> resolver = argumentResolvers.get(argumentClass);
-    String arg = nextUnsafe();
-    T resolved = (T) resolver.apply(arg);
-    if (argumentClass.isAssignableFrom(int.class)) {
-      if (resolved.equals(0)) {
-        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
-      }
-    }
-    if (argumentClass.isAssignableFrom(double.class)) {
-      if (resolved.equals(0.0)) {
-        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
-      }
-    }
-    if (resolved == null) {
-      return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
-    }
-
-    return ArgumentOptional.of(resolved, FailReason.NO_FAIL_REASON);
-  }
-
-  /**
    * Resolves the next argument to the specified resolver. The specified method decrements {@link
-   * #size()} and if you run that method like that (ex.) <code>
+   * #size()} and if you run that method like that:
+   *
+   * <blockquote>
+   *
+   * <pre>
    *   public void execute(CommandSender cs, String label, CommandArguments args) {
    *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason (lambda) {
+   *     }).orElse(failReason -> {
    *       // handling
    *     });
    *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason (lambda) {
+   *     }).orElse(failReason -> {
    *       // handling
    *     });
    *   }
-   * </code> The 2nd get will get the next argument after the 1st call so it won't be equal to the
-   * first one. That's why 2nd or more arguments should be in the call before to have access to all
-   * of the arguments you need. Be careful when using the methods with <code>next</code> in their
-   * name!
+   * </pre>
+   *
+   * </blockquote>
+   *
+   * The 2nd get will get the next argument after the 1st call so it won't be equal to the first
+   * one. That's why 2nd or more arguments should be in the call before to have access to all of the
+   * arguments you need. Be careful when using the methods with <code>next</code> in their name!
    *
    * @param resolver the resolver of the argument you want to resolve.
    * @param <T> the type of the argument
@@ -155,16 +121,16 @@ public final class CommandArguments {
    */
   public <T> ArgumentOptional<T> next(Function<String, T> resolver) {
     if (args.size() == 0) {
-      return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_PARSED);
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_TYPED);
     }
     try {
       T resolved = resolver.apply(nextUnsafe());
       if (resolved == null) {
-        throw new IllegalArgumentException();
+        return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NULL);
       }
       return ArgumentOptional.of(resolved, FailReason.NO_FAIL_REASON);
     } catch (Throwable error) {
-      return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_THE_TYPE);
+      return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_TYPE);
     }
   }
 
@@ -221,6 +187,6 @@ public final class CommandArguments {
    * @return instance copy
    */
   public CommandArguments copy() {
-    return new CommandArguments(argumentResolvers, args);
+    return new CommandArguments(args);
   }
 }
