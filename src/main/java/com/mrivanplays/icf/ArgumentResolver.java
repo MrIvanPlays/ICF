@@ -20,17 +20,26 @@
 **/
 package com.mrivanplays.icf;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
+import java.util.function.Consumer;
 
-/** A utility class containing the default argument resolvers. */
-public class ArgumentResolvers {
+/**
+ * Represents a argument resolver which resolves a single argument into a type specified.
+ *
+ * <p>This is a functional interface whose abstract method is {@link #resolve(String)}
+ *
+ * @param <T> resolved to type
+ */
+@FunctionalInterface
+public interface ArgumentResolver<T> {
 
-  public static ArgumentResolver<Integer> INTEGER = Integer::parseInt;
-  public static ArgumentResolver<String> STRING = input -> input;
-  public static ArgumentResolver<Double> DOUBLE = Double::parseDouble;
-  public static ArgumentResolver<Player> PLAYER = Bukkit::getPlayer;
-  public static ArgumentResolver<Player> PLAYER_EXACT = Bukkit::getPlayerExact;
-  public static ArgumentResolver<OfflinePlayer> PLAYER_OFFLINE = Bukkit::getOfflinePlayer;
+  /**
+   * Resolves the input argument into the type this resolver resolves. This method may throw
+   * exceptions which will trigger {@link RestArgumentAction#orElse(Consumer)} with {@link
+   * FailReason} of <code>ARGUMENT_PARSED_NOT_TYPE</code> if used upon {@link
+   * CommandArguments#next(ArgumentResolver)}.
+   *
+   * @param input the input argument to resolve
+   * @return a resolved argument, or null.
+   */
+  T resolve(String input) throws Throwable;
 }

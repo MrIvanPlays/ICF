@@ -117,14 +117,14 @@ public final class CommandArguments {
    * @param resolver the resolver of the argument you want to resolve.
    * @param <T> the type of the argument
    * @return empty {@link ArgumentOptional} if argument not parsed, or the argument parsed is not
-   *     the type.
+   *     the type, or the type parsed is null.
    */
-  public <T> ArgumentOptional<T> next(Function<String, T> resolver) {
+  public <T> ArgumentOptional<T> next(ArgumentResolver<T> resolver) {
     if (args.size() == 0) {
       return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_TYPED);
     }
     try {
-      T resolved = resolver.apply(nextUnsafe());
+      T resolved = resolver.resolve(nextUnsafe());
       if (resolved == null) {
         return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NULL);
       }
@@ -132,6 +132,20 @@ public final class CommandArguments {
     } catch (Throwable error) {
       return ArgumentOptional.of(null, FailReason.ARGUMENT_PARSED_NOT_TYPE);
     }
+  }
+
+  /**
+   * Resolves the next argument to the specified resolver. The specified method decrements {@link
+   * #size()} and if you run that method like that:
+   *
+   * @param resolver the resolver of the argument you want to resolve.
+   * @param <T> the type of the argument
+   * @return empty {@link ArgumentOptional} if argument not parsed, or the argument parsed is not
+   *     the type, or the type parsed is null.
+   * @see #next(ArgumentResolver)
+   */
+  public <T> ArgumentOptional<T> next(Function<String, T> resolver) {
+    return next((ArgumentResolver<T>) resolver::apply);
   }
 
   /**
