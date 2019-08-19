@@ -134,6 +134,18 @@ public final class CommandArguments {
     }
   }
 
+  public ArgumentOptional<Integer> nextInt() {
+    return next(ArgumentResolvers.INTEGER);
+  }
+
+  public ArgumentOptional<String> nextString() {
+    return next(ArgumentResolvers.STRING);
+  }
+
+  public ArgumentOptional<Double> nextDouble() {
+    return next(ArgumentResolvers.DOUBLE);
+  }
+
   /**
    * Resolves the next argument to the specified resolver. The specified method decrements {@link
    * #size()} and if you run that method like that:
@@ -146,18 +158,6 @@ public final class CommandArguments {
    */
   public <T> ArgumentOptional<T> next(Function<String, T> resolver) {
     return next((ArgumentResolver<T>) resolver::apply);
-  }
-
-  /**
-   * Gets a joined arguments into a message from the argument specified. This method, while
-   * officially not deprecated, soon will get removed as it has a new equivalent - {@link
-   * #joinArgumentsSpace(int)}
-   *
-   * @param from from which argument the joiner should start
-   * @return joined string by argument with space as delimiter
-   */
-  public String getArgumentsJoined(int from) {
-    return joinArgumentsSpace(from);
   }
 
   /**
