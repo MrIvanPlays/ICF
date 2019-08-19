@@ -97,12 +97,12 @@ public final class CommandArguments {
    *   public void execute(CommandSender cs, String label, CommandArguments args) {
    *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason -> {
+   *     }).orElse(failReason (lambda) {
    *       // handling
    *     });
    *     args.next(ArgumentResolvers.STRING).ifPresent(string (lambda) {
    *       // handling
-   *     }).orElse(failReason -> {
+   *     }).orElse(failReason (lambda) {
    *       // handling
    *     });
    *   }

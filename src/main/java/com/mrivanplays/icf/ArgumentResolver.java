@@ -41,5 +41,5 @@ public interface ArgumentResolver<T> {
    * @param input the input argument to resolve
    * @return a resolved argument, or null.
    */
-  T resolve(String input) throws Throwable;
+  T resolve(String input) throws Exception;
 }
