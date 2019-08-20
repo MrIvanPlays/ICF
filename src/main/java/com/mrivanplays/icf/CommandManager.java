@@ -21,6 +21,8 @@
 package com.mrivanplays.icf;
 
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
+import com.mrivanplays.icf.external.CommandSendListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +35,10 @@ public final class CommandManager {
     private final BukkitCommandMapBridge mapBridge;
     private String noPermissionMessage;
     private String noConsoleMessage;
+    private final Plugin plugin;
 
     public CommandManager(@NotNull Plugin plugin) {
+        this.plugin = plugin;
         mapBridge = new BukkitCommandMapBridge(plugin, this);
         setNoPermissionMessage(
                 "&cYou don't have permission to perform this command"); // default no permission message
@@ -53,6 +57,24 @@ public final class CommandManager {
             @NotNull String... aliases
     ) {
         mapBridge.registerCommand(command, aliases);
+    }
+
+    /**
+     * Enables permission check for showing up commands, registered by this manager
+     * by doing /[tab] ingame. It is suggested to call this method after registering
+     * all commands you have, because if you call it directly after the manager was
+     * initialized, it will not take effect.
+     * <p>
+     * It was not our fault that the commands were added to the tab completion even
+     * if the player had no permission to view them, that's bukkit's permission
+     * system fault.
+     */
+    public void enablePermissionCheckWhenFirstTabComplete() {
+        Bukkit.getPluginManager().registerEvents(
+                new CommandSendListener(
+                        plugin.getName(),
+                        mapBridge.getCommands()
+                ), plugin);
     }
 
     /**

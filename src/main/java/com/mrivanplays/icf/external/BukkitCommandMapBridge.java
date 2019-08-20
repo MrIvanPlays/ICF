@@ -23,6 +23,10 @@ package com.mrivanplays.icf.external;
 import com.mrivanplays.icf.CommandManager;
 import com.mrivanplays.icf.ICFCommand;
 import java.lang.reflect.Field;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.Plugin;
@@ -32,6 +36,7 @@ public final class BukkitCommandMapBridge {
     private CommandMap commandMap;
     private final Plugin plugin;
     private final CommandManager commandManager;
+    private final List<Map.Entry<String, String>> commands;
 
     public BukkitCommandMapBridge(
             Plugin plugin,
@@ -46,13 +51,21 @@ public final class BukkitCommandMapBridge {
         }
         this.plugin = plugin;
         this.commandManager = commandManager;
+        commands = new ArrayList<>();
     }
 
     public void registerCommand(
             ICFCommand command,
             String... aliases
     ) {
+        for (String alias : aliases) {
+            commands.add(new AbstractMap.SimpleEntry<>(alias, command.getPermission()));
+        }
         commandMap.register(
                 aliases[0], plugin.getName(), new BridgeCommand(command, commandManager, aliases));
+    }
+
+    public List<Map.Entry<String, String>> getCommands() {
+        return commands;
     }
 }
