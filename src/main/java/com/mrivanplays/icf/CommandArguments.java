@@ -148,7 +148,10 @@ public final class CommandArguments {
 
     @NotNull
     public ArgumentOptional<String> nextString() {
-        return next(ArgumentResolvers.STRING);
+        if (args.size() == 0) {
+            return ArgumentOptional.of(null, FailReason.ARGUMENT_NOT_TYPED);
+        }
+        return ArgumentOptional.of(nextUnsafe(), FailReason.NO_FAIL_REASON);
     }
 
     @NotNull
