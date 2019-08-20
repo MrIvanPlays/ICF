@@ -30,7 +30,13 @@ import org.bukkit.entity.Player;
 public class ArgumentResolvers {
 
     public static ArgumentResolver<Integer> INTEGER = Integer::parseInt;
+
+    /**
+     * @deprecated {@link CommandArguments#nextString()} has better performance
+     */
+    @Deprecated
     public static ArgumentResolver<String> STRING = input -> input;
+
     public static ArgumentResolver<Double> DOUBLE = Double::parseDouble;
     public static ArgumentResolver<Player> PLAYER = Bukkit::getPlayer;
     public static ArgumentResolver<Player> PLAYER_EXACT = Bukkit::getPlayerExact;
