@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +45,7 @@ public final class CommandArguments {
     /**
      * Gets the next argument while decrementing the {@link #size()}. This method is unsafe as the
      * method may return null if there are no arguments and the safe alternatives of this method are
-     * {@link #next()} or {@link #next(Function)}. Be careful when using the methods with <code>next
+     * {@link #next()} or {@link #next(ArgumentResolver)}. Be careful when using the methods with <code>next
      * </code> in their name!
      *
      * @return a string argument or null
@@ -157,21 +156,6 @@ public final class CommandArguments {
     @NotNull
     public ArgumentOptional<Double> nextDouble() {
         return next(ArgumentResolvers.DOUBLE);
-    }
-
-    /**
-     * Resolves the next argument to the specified resolver. The specified method decrements {@link
-     * #size()} and if you run that method like that:
-     *
-     * @param resolver the resolver of the argument you want to resolve.
-     * @param <T> the type of the argument
-     * @return empty {@link ArgumentOptional} if argument not parsed, or the argument parsed is not
-     * the type, or the type parsed is null.
-     * @see #next(ArgumentResolver)
-     */
-    @NotNull
-    public <T> ArgumentOptional<T> next(@NotNull Function<String, T> resolver) {
-        return next((ArgumentResolver<T>) resolver::apply);
     }
 
     /**
