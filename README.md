@@ -90,6 +90,9 @@ public class CommandTestPlaceholders extends ICFCommand {
 }
 ```
 
+The argument resolver in the next example is just an example. 
+If you really want to get a string, use `args.nextString()` instead.
+
 We want to get the 1st argument? Or any other argument? No problem!
 ```java
 public class CommandTestPlaceholders extends ICFCommand {
@@ -102,6 +105,9 @@ public class CommandTestPlaceholders extends ICFCommand {
   }
 }
 ```
+
+The argument resolver in the next example is just an example. 
+If you really want to get a string, use `args.nextString()` instead.
 
 We want a permission or to force the command to be player only? NO PROBLEM
 ```java
@@ -169,7 +175,7 @@ Making a argument resolver. If you have multiple ones, make sure to make a util 
 with them so they're easily accessable. Also keep in mind that this is a example.
 ```java
 // creation
-public static Function<String, Weapon> WEAPON = Weapon::new;
+public static ArgumentResolver<Weapon> WEAPON = Weapon::new;
 
 
 // usage
