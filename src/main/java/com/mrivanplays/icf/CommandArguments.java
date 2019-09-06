@@ -187,6 +187,24 @@ public final class CommandArguments {
     }
 
     /**
+     * Joins the specified arguments with the specified characters.
+     *
+     * @param from from which argument the joiner should start
+     * @param separator the characters used to join the arguments
+     * @return joined string from arguments with the characters separator as delimiter
+     */
+    public String joinArguments(
+            int from,
+            CharSequence separator
+    ) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = from; i < args.size(); i++) {
+            builder.append(args.get(i)).append(separator);
+        }
+        return builder.substring(0, builder.length() - 1);
+    }
+
+    /**
      * Returns the count of the specified arguments. This count will decrement whenever a argument was
      * got from any of the methods except {@link #joinArguments(int, char)}
      *
