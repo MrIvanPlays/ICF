@@ -1,23 +1,23 @@
 /*
- * Copyright 2019 Ivan Pekov (MrIvanPlays)
- * Copyright 2019 contributors
+* Copyright 2019 Ivan Pekov (MrIvanPlays)
+* Copyright 2019 contributors
 
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the "Software"), to deal in the
+* Software without restriction, including without limitation the rights to use, copy,
+* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+* and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
- * The above copyright notice and this permission notice shall be included in all copies
- * or substantial portions of the Software.
+* The above copyright notice and this permission notice shall be included in all copies
+* or substantial portions of the Software.
 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- **/
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**/
 package com.mrivanplays.icf.external;
 
 import java.util.List;
@@ -28,33 +28,30 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandSendEvent;
 
 /**
- * A listener to remove commands from first completion if a {@link Player}
- * has no permission to execute them.
+ * A listener to remove commands from first completion if a {@link Player} has no permission to
+ * execute them.
  */
 public class CommandSendListener implements Listener {
 
-    private final String pluginName;
-    private final List<Map.Entry<String, String>> commandMap;
+  private final String pluginName;
+  private final List<Map.Entry<String, String>> commandMap;
 
-    public CommandSendListener(
-            String pluginName,
-            List<Map.Entry<String, String>> commandMap
-    ) {
-        this.pluginName = pluginName;
-        this.commandMap = commandMap;
-    }
+  public CommandSendListener(String pluginName, List<Map.Entry<String, String>> commandMap) {
+    this.pluginName = pluginName;
+    this.commandMap = commandMap;
+  }
 
-    @EventHandler
-    public void on(PlayerCommandSendEvent event) {
-        Player player = event.getPlayer();
-        for (Map.Entry<String, String> entry : commandMap) {
-            if (entry.getValue() == null) {
-                continue;
-            }
-            if (!player.hasPermission(entry.getValue())) {
-                event.getCommands().remove(entry.getKey());
-                event.getCommands().remove(pluginName + ":" + entry.getKey());
-            }
-        }
+  @EventHandler
+  public void on(PlayerCommandSendEvent event) {
+    Player player = event.getPlayer();
+    for (Map.Entry<String, String> entry : commandMap) {
+      if (entry.getValue() == null) {
+        continue;
+      }
+      if (!player.hasPermission(entry.getValue())) {
+        event.getCommands().remove(entry.getKey());
+        event.getCommands().remove(pluginName + ":" + entry.getKey());
+      }
     }
+  }
 }
