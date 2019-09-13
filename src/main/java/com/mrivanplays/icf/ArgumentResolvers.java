@@ -21,6 +21,7 @@
 package com.mrivanplays.icf;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -33,7 +34,30 @@ public class ArgumentResolvers {
   @Deprecated public static ArgumentResolver<String> STRING = input -> input;
 
   public static ArgumentResolver<Double> DOUBLE = Double::parseDouble;
+  public static ArgumentResolver<Float> FLOAT = Float::parseFloat;
   public static ArgumentResolver<Player> PLAYER = Bukkit::getPlayer;
   public static ArgumentResolver<Player> PLAYER_EXACT = Bukkit::getPlayerExact;
   public static ArgumentResolver<OfflinePlayer> PLAYER_OFFLINE = Bukkit::getOfflinePlayer;
+
+  public static ArgumentResolver<GameMode> GAME_MODE =
+      argument -> GameMode.valueOf(argument.toUpperCase());
+  public static ArgumentResolver<GameMode> COMPLEX_GAME_MODE =
+      argument -> {
+        try {
+          return GameMode.valueOf(argument.toUpperCase());
+        } catch (IllegalArgumentException e) {
+          int gameMode = INTEGER.resolve(argument);
+          if (gameMode == 0) {
+            return GameMode.SURVIVAL;
+          } else if (gameMode == 1) {
+            return GameMode.CREATIVE;
+          } else if (gameMode == 2) {
+            return GameMode.ADVENTURE;
+          } else if (gameMode == 3) {
+            return GameMode.SPECTATOR;
+          } else {
+            return null;
+          }
+        }
+      };
 }
