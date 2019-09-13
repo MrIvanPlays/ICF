@@ -22,6 +22,7 @@ package com.mrivanplays.icf;
 
 import com.mrivanplays.icf.external.BukkitCommandMapBridge;
 import com.mrivanplays.icf.external.CommandSendListener;
+import java.util.Arrays;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -42,6 +43,23 @@ public final class CommandManager {
         "&cYou don't have permission to perform this command"); // default no permission message
     setNoConsoleMessage(
         "&cThe command you've tried to run is player only."); // default no console message
+  }
+
+  /**
+   * Registers a new {@link BaseCommand}.
+   *
+   * @param command the command you want to register
+   */
+  public void registerCommand(@NotNull BaseCommand command) {
+    if (command.getAliases() != null) {
+      String[] aliases = Arrays.copyOf(command.getAliases(), command.getAliases().length + 1);
+      String firstAlias = aliases[0];
+      aliases[0] = command.getName();
+      aliases[command.getAliases().length + 1] = firstAlias;
+      registerCommand(command, aliases);
+    } else {
+      registerCommand(command, command.getName());
+    }
   }
 
   /**
