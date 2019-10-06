@@ -208,6 +208,22 @@ public final class CommandArguments {
   }
 
   /**
+   * Returns the raw arguments array. If any method in this class containing "next" in his name is
+   * being called before this method, this method won't return all of the arguments.
+   *
+   * <p>It is generally preferable to not use this method
+   *
+   * @return raw arguments left or null if none
+   */
+  @Nullable
+  public String[] getArgsLeft() {
+    if (args.isEmpty()) {
+      return null;
+    }
+    return args.toArray(new String[0]);
+  }
+
+  /**
    * Creates a new copy of this command arguments.
    *
    * @return instance copy
